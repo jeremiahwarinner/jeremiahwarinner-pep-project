@@ -40,7 +40,7 @@ public class SocialMediaController {
         app.get("/messages/{id}", this::getMessagesByIdHandler);
         app.delete("/messages/{id}", this::deleteMessagesByIdHandler);
         app.patch("/messages/{id}", this::patchMessagesByIdHandler);
-        app.patch("/accounts/{account_id}/messages",this::getMessagesByAccountIdHandler);
+        app.get("/accounts/{id}/messages",this::getMessagesByAccountIdHandler);
 
         return app;
     }
@@ -49,9 +49,6 @@ public class SocialMediaController {
      * This is an example handler for an example endpoint.
      * @param context The Javalin Context object manages information about both the HTTP request and response.
      */
-    private void exampleHandler(Context context) {
-        context.json("sample text");
-    }
     private void postRegisterHandler(Context ctx) throws JsonProcessingException{
             ObjectMapper mapper = new ObjectMapper();
             Account account = mapper.readValue(ctx.body(), Account.class);
@@ -99,23 +96,59 @@ public class SocialMediaController {
 
 
     }
-    private void deleteMessagesByIdHandler(Context ctx){
-        int id = Integer.parseInt(ctx.pathParam("id"));
-        if(messageservice.getMessageById(id) == null){
-            ctx.status(200);
-        }
-        else{
-            messageservice.deleteMessageById(id);
+    private void deleteMessagesByIdHandler(Context ctx) {
+        try {
+            int id = Integer.parseInt(ctx.pathParam("id"));
+            Message deletedMessage = messageservice.deleteMessageById(id);
+            
+            if (deletedMessage == null) {
+                ctx.status(200); 
+                ctx.json("");
+            } else {
+                ctx.status(200);
+                ctx.json(deletedMessage);
+            }
+        } catch (NumberFormatException e) {
+            ctx.status(400);
+            ctx.json("Invalid message ID format");
         }
     }
-    private void patchMessagesByIdHandler(Context ctx){
-
+    private void patchMessagesByIdHandler(Context ctx) {
+        try {
+            int id = Integer.parseInt(ctx.pathParam("id"));
+            Message existingMessage = messageservice.getMessageById(id);
+            if (existingMessage == null) {
+                ctx.status(400);
+                ctx.json("");
+                return;
+            }
+            Message updateRequest = ctx.bodyAsClass(Message.class);
+            Message updatedMessage = new Message(
+                existingMessage.getMessage_id(),
+                existingMessage.getPosted_by(),
+                updateRequest.getMessage_text(),  
+                existingMessage.getTime_posted_epoch()
+            );
+            if (updatedMessage.getMessage_text().length() > 255 || 
+                updatedMessage.getMessage_text().trim().isEmpty()) {
+                ctx.status(400);
+                ctx.json("");
+                return;
+            }
+            messageservice.updateMessageById(id, updatedMessage);
+            ctx.json(updatedMessage);
+            ctx.status(200);
+            
+        } catch (Exception e) {
+            ctx.status(400);
+            ctx.json("");
+        }
     }
     private void getMessagesByAccountIdHandler(Context ctx){
+        System.out.println("Route hit: /accounts/{id}/messages");
         int id = Integer.parseInt(ctx.pathParam("id"));
         ctx.json(messageservice.getMesssagesByAccountId(id));
         ctx.status(200);
-
     }
     
 

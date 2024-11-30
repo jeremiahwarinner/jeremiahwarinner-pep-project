@@ -13,15 +13,10 @@ public class AccountDAO {
     public Account insertAccount(Account account){
         Connection connection = ConnectionUtil.getConnection();
         try {
-
             String sql = "insert into account (username, password) values (?,?)" ;
-
             PreparedStatement preparedStatement = connection.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS);
-
-
             preparedStatement.setString(1,account.getUsername());
             preparedStatement.setString(2,account.getPassword());
-
             preparedStatement.executeUpdate();
             ResultSet pkeyResultSet = preparedStatement.getGeneratedKeys();
             if(pkeyResultSet.next()){
@@ -36,12 +31,8 @@ public class AccountDAO {
     public Account loginAccount(Account account){
             Connection connection = ConnectionUtil.getConnection();
             try {
-                //Write SQL logic here"
                 String sql = "select * from account where username = ? and password = ?";
-                
                 PreparedStatement preparedStatement = connection.prepareStatement(sql);
-    
-                //write preparedStatement's setString and setInt methods here.
                 preparedStatement.setString(1,account.getUsername());
                 preparedStatement.setString(2,account.getPassword());
                 ResultSet rs = preparedStatement.executeQuery();
@@ -59,12 +50,8 @@ public class AccountDAO {
         public Account checkAccount(Account account){
             Connection connection = ConnectionUtil.getConnection();
             try {
-                //Write SQL logic here"
                 String sql = "select * from account where username = ?";
-                
                 PreparedStatement preparedStatement = connection.prepareStatement(sql);
-    
-                //write preparedStatement's setString and setInt methods here.
                 preparedStatement.setString(1,account.getUsername());
                 ResultSet rs = preparedStatement.executeQuery();
                 while(rs.next()){
@@ -82,12 +69,9 @@ public class AccountDAO {
         public Account checkAccountById(int id){
             Connection connection = ConnectionUtil.getConnection();
             try {
-                //Write SQL logic here"
                 String sql = "select * from account where account_id = ?";
                 
                 PreparedStatement preparedStatement = connection.prepareStatement(sql);
-    
-                //write preparedStatement's setString and setInt methods here.
                 preparedStatement.setInt(1,id);
                 ResultSet rs = preparedStatement.executeQuery();
                 while(rs.next()){

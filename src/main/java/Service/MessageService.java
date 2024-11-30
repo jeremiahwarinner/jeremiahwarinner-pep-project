@@ -33,8 +33,8 @@ public class MessageService {
     public Message getMessageById(int id){
             return messagedao.getMessageById(id);
     }
-    public void deleteMessageById(int id){
-        messagedao.deleteMessageById(id);
+    public Message deleteMessageById(int id){
+        return messagedao.deleteMessageById(id);
     }
     public void updateMessageById(int id, Message message){
         if(message.getMessage_text().length() <= 255 && messagedao.getMessageById(id) != null )
